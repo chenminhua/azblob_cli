@@ -1,13 +1,10 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"github.com/Azure/azure-storage-blob-go/azblob"
+	"github.com/chenminhua/azblob_cli/cmd"
 	"log"
-	"net/url"
-	"os"
 )
 
 // Azure Storage Quickstart Sample - Demonstrate how to upload, list, download, and delete blobs.
@@ -34,61 +31,17 @@ func handleErrors(err error) {
 	}
 }
 
-type BlobClient struct {
-	accountName string
-	accountKey  string
-	credential  *azblob.SharedKeyCredential
-	container   *azblob.ContainerURL
-}
-
-func NewBlobClient(accountName, accountKey, containerName string) (*BlobClient, error) {
-	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
-	if err != nil {
-		return nil, errors.New("Invalid credentials with error: " + err.Error())
-	}
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", accountName, containerName))
-	//Create a ContainerURL object that wraps the container URL and a request pipeline to make requests.
-	containerURL := azblob.NewContainerURL(*URL, p)
-	//ctx := context.Background() // This example uses a never-expiring context
-	//_, err = containerURL.Create(ctx, azblob.Metadata{}, azblob.PublicAccessNone)
-	return &BlobClient{
-		accountName: accountName,
-		accountKey:  accountKey,
-		credential:  credential,
-		container:   &containerURL,
-	}, nil
-}
-
-func (bc *BlobClient) Upload(fileName string) {
-	ctx := context.Background()
-	blobURL := bc.container.NewBlockBlobURL(fileName)
-	file, err := os.Open(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = azblob.UploadFileToBlockBlob(ctx, file, blobURL, azblob.UploadToBlockBlobOptions{
-		BlockSize:   4 * 1024 * 1024,
-		Parallelism: 16})
-}
-
-
-
-
 func main() {
-
-	// From the Azure portal, get your storage account name and key and set environment variables.
-	//accountName, accountKey := os.Getenverr("AZURE_STORAGE_ACCOUNT"), os.Getenv("AZURE_STORAGE_ACCESS_KEY")
-	//if len(accountName) == 0 || len(accountKey) == 0 {
-	//	log.Fatal("Either the AZURE_STORAGE_ACCOUNT or AZURE_STORAGE_ACCESS_KEY environment variable is not set")
-	//}
-	accountName := "bb8store"
-	accountKey := "VVIopaJDB/O0cTvma/70F1d0Vrnvrw0lQ022OxfqpQo/ynwqOU+ZcNM8t620rrhwmkGK3vh+Rl/ruy3O63EEsQ=="
-	containerName := "images"
-
-	blobCli, _ := NewBlobClient(accountName, accountKey, containerName)
-	blobCli.Upload("go.mod")
+	cmd.Execute()
+	//
+	//
+	//
+	//accountName := "bb8store"
+	//accountKey := "VVIopaJDB/O0cTvma/70F1d0Vrnvrw0lQ022OxfqpQo/ynwqOU+ZcNM8t620rrhwmkGK3vh+Rl/ruy3O63EEsQ=="
+	//containerName := "images"
+	//
+	//blobCli, _ := NewBlobClient(accountName, accountKey, containerName)
+	//blobCli.Upload("go.mod")
 
 	// From the Azure portal, get your storage account blob service URL endpoint.
 
